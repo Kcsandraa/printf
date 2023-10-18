@@ -86,10 +86,8 @@ int _puts(const char *str)
 {
 	int count = 0;
 
-        while (*str != '\0')
-        {
+	while (*str != '\0')
 		count += write(1, str++, 1);
-        }
 	return (count);
 }
 
@@ -107,5 +105,5 @@ int print_number(int num)
 		count = _putchar((num / 10) + '0');
 		return (count + _putchar((num % 10) + '0'));
 	}
-	return ( write(1, &num, 1));
+	return (write(1, &num, 1));
 }
