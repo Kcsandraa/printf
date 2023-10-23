@@ -1,53 +1,6 @@
 #include "main.h"
-#include <unistd.h>
 #include <stdarg.h>
-
-/**
- * print_output - checks the format type
- * @specified_format: Format specifier
- * @arg: The number of arguments passed
- * Return: the number of characters
- */
-
-int print_output(char specified_format, va_list arg)
-{
-	int count = 0, num;
-	char c;
-
-	if (specified_format == 'c')
-	{
-		c = va_arg(arg, int);
-		count = _putchar(c);
-	}
-	else if (specified_format == 's')
-	{
-		count = _puts(va_arg(arg, char *));
-	}
-	else if (specified_format == 'd' || specified_format == 'i')
-	{
-		num = va_arg(arg, int);
-		if (num < 0)
-		{
-			num = -num;
-			count = print_number(num);
-		}
-		else if (num == 0)
-		{
-			count = 0;
-		}
-		else
-		{
-			count = print_number(num);
-		}
-	}
-	else if (specified_format == '%')
-	{
-		count = _putchar(37);
-	}
-	else
-		count = write(1, &specified_format, 1);
-	return (count);
-}
+#include <unistd.h>
 
 /**
  * _printf - prints formatted output
@@ -58,19 +11,42 @@ int print_output(char specified_format, va_list arg)
 
 int _printf(const char *format, ...)
 {
-	int count = 0;
-
+	int count = 0, n;
 	va_list args;
 
 	va_start(args, format);
-
-	while (*format != '\0')
+	while (*format)
 	{
 		if (*format == '%')
 		{
-			count += print_output(*++format, args);
+			switch (*(format + 1))
+			{
+				case 'c':
+					count = _putchar(va_arg(args, int));
+					++format;
+					break;
+				case 's':
+					count = _puts(va_arg(args, char *));
+					++format;
+					break;
+				case 'd':
+				case 'i':
+					n = va_arg(args, int);
+					if (n < 0)
+					{
+						count = _putchar('-');
+						n = -n;
+					}
+					count += print_number(n);
+					++format;
+					break;
+				case '%':
+					count = _putchar(37);
+					break;
+			}
 		}
-		count += write(1, format, 1);
+		else
+			count += write(1, format, 1);
 		format++;
 	}
 	va_end(args);
@@ -78,32 +54,20 @@ int _printf(const char *format, ...)
 }
 
 /**
- * _puts - prints a string
- * @str: the string
- * Return: void
- */
-int _puts(const char *str)
-{
-	int count = 0;
-
-	while (*str != '\0')
-		count += write(1, str++, 1);
-	return (count);
-}
-
-/**
  * print_number - prints a number
- * @num: The number
+ * @n: The number
  * Return: A number
  */
-int print_number(int num)
+int print_number(int n)
 {
 	int count;
 
-	if (num > 10)
+	count = 0;
+
+	if (n >= 10)
 	{
-		count = _putchar((num / 10) + '0');
-		return (count + _putchar((num % 10) + '0'));
+		count += print_number(n / 10);
 	}
-	return (write(1, &num, 1));
+	count += _putchar((n % 10) + '0');
+	return (count);
 }
